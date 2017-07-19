@@ -7,6 +7,9 @@ interface MyStructure{
     public function wowza();
 }
 
+/**
+ * Undocumented class
+ */
 class Base
 {
     protected function blurg(){}
@@ -69,4 +72,15 @@ $findParentMethods($parent->getName());
 // Obtain the methods that do not belong to the parent
 $nonInheritedMethods = array_diff($classMethods, $parentMethods);
 
+// Remove any methods that belong to interfaces
+$removeInterfaceMethods = (function($f) use (&$nonInheritedMethods){
+   foreach($f->getInterfaces() as $interface){
+       foreach((new ReflectionClass($interface->getName()))->getMethods() as $rmo){
+           $_tmp[] = $rmo->getName();
+       }
+       $nonInheritedMethods = array_diff($nonInheritedMethods, $_tmp);
+   }
+})($f);
+
+// Print the results
 print_r($nonInheritedMethods);
