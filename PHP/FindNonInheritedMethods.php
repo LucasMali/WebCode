@@ -36,10 +36,6 @@ class MyChild extends MyParent implements MyStructure
     public function wowza(){return false;}
 }
 
-/*****************************************************
- * The Logic: Find Non-Inherited Methods
- ****************************************************/
-
 // Setup
 $parentMethods = [];
 $f = new ReflectionClass('MyChild');
@@ -58,19 +54,17 @@ if(!$parent = $f->getParentClass()){
 /**
  * @param $class string
  */
-$findParentMethods = function(string $class) use (&$parentMethods, &$findParentMethods)
+$findParentMethods = function(string $class) use (&$parentMethods)
 {
     $f = new ReflectionClass($class);
     foreach($f->getMethods() as $reflectMethodObject){
         $parentMethods[] = $reflectMethodObject->getName();
     }
-    if($f->getParentClass()){
-        $findParentMethods($f->getParentClass()->getName());
-    }
 };
 
 // Build the array of parent methods
 $findParentMethods($parent->getName());
+
 
 // Obtain the methods that do not belong to the parent
 $nonInheritedMethods = array_diff($classMethods, $parentMethods);
