@@ -43,7 +43,7 @@ class MyChild extends MyParent implements MyStructure
 $parentMethods = [];
 $f = new ReflectionClass('MyChild');
 
-// Obtain the list of methods used buy the current class
+// Obtain the list of methods used by the current class
 foreach($f->getMethods() as $reflectMethodObject){
     $classMethods[] = $reflectMethodObject->getName();
 }
