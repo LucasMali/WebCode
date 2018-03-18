@@ -1,31 +1,35 @@
 <?php
 /**
- * Simple mysql blog post, no error checking.
+ * Simple mysql blog post, no error checking, no optimization.
  */
-
-$conn = new mysqli('localhost', 'username', 'password');
+$posts = [];
+$conn = new mysqli('localhost', 'root', 'root');
 
 $sql = <<< SQL
     SET sql_notes = 0;
-    CREATE DATABASE IF NOT EXISTS `blog` CHARACTER SET utf8 COLLATE utf8_general_ci;
-    CREATE TABLE IF NOT EXISTS `post`(id MEDIUMINT NOT NULL AUTO_INCREMENT, post BLOB NOT NULL, createdt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id));
+    CREATE DATABASE IF NOT EXISTS blog CHARACTER SET utf8 COLLATE utf8_general_ci;
+    CREATE TABLE IF NOT EXISTS blog.post(id MEDIUMINT NOT NULL AUTO_INCREMENT, post BLOB NOT NULL, createdt TIMESTAMP DEFAULT CURRENT_TIMESTAMP, PRIMARY KEY (id));
+    SET sql_notes = 1;
 SQL;
+
+$conn->query($sql);
 
 if(!empty($_POST) && array_key_exists('blogPost', $_POST)){
     $post = $conn->real_escape_string($_POST['blogPost']);
-    $sql .= <<< SQL
-    INSERT INTO `blog.post`(post) VALUES ({$post}});
+    $sql = <<< SQL
+    INSERT INTO blog.post(post) VALUES ('{$post}');
 SQL;
+    $conn->query($sql);
 }
 
-$sql .= <<< SQL
-SELECT * FROM `blog.post` ORDER BY createdt ASC LIMIT 10;
+$sql = <<< SQL
+SELECT * FROM blog.post ORDER BY createdt ASC LIMIT 10;
 SQL;
 
-$res = $conn->query($sql);
-$posts = [];
-while($row = $res->mysqli_fetch_assoc()){
-    $posts = $row;
+if($res = $conn->query($sql)){
+    while($row = $res->fetch_assoc()){
+        $posts[] = $row;
+    }
 }
 ?>
 
@@ -35,10 +39,13 @@ while($row = $res->mysqli_fetch_assoc()){
         <title>Test Blog</title>
         <style>
             textarea{
-                width: 60%;
+                width: 100%;
             }
             button{
                 display:block;
+            }
+            table{
+                width:100%;
             }
         </style>
     </head>
